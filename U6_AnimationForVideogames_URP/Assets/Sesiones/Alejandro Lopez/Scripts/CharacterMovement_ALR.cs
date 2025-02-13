@@ -6,16 +6,20 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Animator))]
 public class CharacterMovement_ALR : MonoBehaviour
 {
+    [Header("Settings")]
     [SerializeField] private Camera mainCamera;
+
+    [Header("Dampeners")]
     [SerializeField] private FloatDamper speedX;
     [SerializeField] private FloatDamper speedY;
 
-    private Quaternion lookRotation;
-
-    private Animator animator;
-
     private int speedXHash;
     private int speedYHash;
+
+    [Header("Animation Settings")]
+    private Quaternion lookRotation;
+    private Animator animator;
+
 
     public void OnMove(InputAction.CallbackContext context)
     {
