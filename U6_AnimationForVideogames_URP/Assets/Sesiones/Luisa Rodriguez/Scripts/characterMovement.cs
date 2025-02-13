@@ -37,7 +37,10 @@ public class CharacterMovement : MonoBehaviour
         speedX.targetValue = InputValue.x;
         speedY.targetValue = InputValue.y;
 
-        solveCharacterRotation();
+        if (InputValue.magnitude > .1f)
+        {
+            solveCharacterRotation();
+        }
     }
 
     private void Awake()
