@@ -20,7 +20,6 @@ public class CharacterMovement_ALR : MonoBehaviour
     private Quaternion lookRotation;
     private Animator animator;
 
-
     public void OnMove(InputAction.CallbackContext context)
     {
         Vector2 movement = context.ReadValue<Vector2>();
@@ -59,7 +58,12 @@ public class CharacterMovement_ALR : MonoBehaviour
         animator.SetFloat(speedXHash, speedX.CurrentValue);
         animator.SetFloat(speedYHash, speedY.CurrentValue);
 
-        Quaternion rotation = Quaternion.RotateTowards(transform.rotation, lookRotation, 180 * Time.deltaTime);
+        //SolveCharacterRotation();
+
+        float motionMagnitude = Mathf.Sqrt(speedX.CurrentValue * speedX.CurrentValue + speedY.CurrentValue * speedY.CurrentValue);
+        float rotationSpeed = Mathf.SmoothStep(0, 0.1f, motionMagnitude);
+
+        Quaternion rotation = Quaternion.RotateTowards(transform.rotation, lookRotation, 180 * rotationSpeed);
 
         transform.rotation = rotation;
     }
