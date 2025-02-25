@@ -14,12 +14,14 @@ public class LockTarget_Tilin : MonoBehaviour, ICharacterComp
     {
         if (ctx.started) return;
 
-        Collider[] detectedObjects = Physics.OverlapSphere(transform.position, detectionRadius, detectionLayer);
-
-        if(detectedObjects.Length == 0){
+        if(Character.LockTarget != null){
             Character.LockTarget = null;
             return;
         }
+
+        Collider[] detectedObjects = Physics.OverlapSphere(transform.position, detectionRadius, detectionLayer);
+
+        if(detectedObjects.Length == 0) return;
 
         float nearestAngle = detectionAngle;
         float nearestDistance = detectionRadius;
@@ -52,4 +54,11 @@ public class LockTarget_Tilin : MonoBehaviour, ICharacterComp
     {
 
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    }
+#endif
 }
