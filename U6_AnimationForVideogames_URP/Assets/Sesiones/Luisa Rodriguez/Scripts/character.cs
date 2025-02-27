@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class character : MonoBehaviour
 {
-    [SerializeField] Transform lockTarget;
+    Transform lockTarget;
+    [SerializeField]private bool isAiming;
 
     public Transform LockTarget
     {
@@ -10,9 +11,15 @@ public class character : MonoBehaviour
         set => lockTarget = value;
     }
 
-    private void RegisterComponent()
+    public bool IsAiming
     {
-        foreach(ICharacterComponent characterComponent in GetComponentsInChildren<ICharacterComponent>())
+        get => isAiming;
+        set => isAiming = value;
+    }
+
+    private void RegisterComponents()
+    {
+        foreach (ICharacterComponent characterComponent in GetComponentsInChildren<ICharacterComponent>())
         {
             characterComponent.ParentCharacter = this;
         }
@@ -20,6 +27,7 @@ public class character : MonoBehaviour
 
     private void Awake()
     {
-        RegisterComponent();
+        RegisterComponents();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }
