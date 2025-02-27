@@ -12,7 +12,7 @@ public class LockTarget_Tilin : MonoBehaviour, ICharacterComp
 
     public void Lock(InputAction.CallbackContext ctx)
     {
-        if (ctx.started) return;
+        if (!ctx.started) return;
 
         if(Character.LockTarget != null){
             Character.LockTarget = null;
@@ -48,11 +48,6 @@ public class LockTarget_Tilin : MonoBehaviour, ICharacterComp
         }
 
         Character.LockTarget = detectedObjects[cloestesObject].transform;
-    }
-
-    private void Update()
-    {
-
     }
 
 #if UNITY_EDITOR

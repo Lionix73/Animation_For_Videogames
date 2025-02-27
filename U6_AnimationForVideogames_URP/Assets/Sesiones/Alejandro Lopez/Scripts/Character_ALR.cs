@@ -3,8 +3,11 @@ using UnityEngine;
 [DefaultExecutionOrder(-1)]
 public class Character_ALR : MonoBehaviour
 {
-    [SerializeField] private Transform lockTarget;
+    private Transform lockTarget;
+    private bool isAiming;
+
     public Transform LockTarget { get => lockTarget; set => lockTarget = value; }
+    public bool IsAiming { get => isAiming; set => isAiming = value; }
 
     private void RegisterComp(){
         foreach (ICharacterComp comp in GetComponentsInChildren<ICharacterComp>())
@@ -16,5 +19,7 @@ public class Character_ALR : MonoBehaviour
     private void Awake()
     {
         RegisterComp();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
