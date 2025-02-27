@@ -5,51 +5,47 @@ using UnityEngine.InputSystem;
 public class characterLoook : MonoBehaviour, ICharacterComponent
 {
 
-    [Header("Settings")]
-    [SerializeField] private Transform target;
-    [SerializeField] private float horizontalRotationSpeed = 1.0f;
-    [SerializeField] private float verticalRotationSpeed = 1.0f;
-    [SerializeField] private Vector2 rotationLimits = new Vector2(-90, 90);
+   [SerializeField] private Transform target;
 
-    [Header("Dampeners")]
-    [SerializeField] private FloatDamper horizontalDampener;
-    [SerializeField] private FloatDamper verticalDampener;
+    [SerializeField] private FloatDampener horizontalDampener;
+    [SerializeField] private FloatDampener verticalDampener;
 
-    float verticalRotation;
+    [SerializeField] private float horizontalRotationSpeed;
+    [SerializeField] private float verticalRotationSpeed;
+    [SerializeField] private Vector2 verticalRotationLimits;
 
-    public character ParentCharacter { get; set; }
+    private float verticalRotation;
+
+    [field:SerializeField]public character ParentCharacter { get; set; }
 
     public void OnLook(InputAction.CallbackContext ctx)
     {
         Vector2 inputValue = ctx.ReadValue<Vector2>();
         inputValue = inputValue / new Vector2(Screen.width, Screen.height);
-
-        horizontalDampener.TargetValue = inputValue.x;
-        verticalDampener.TargetValue = inputValue.y;
+        horizontalDampener.targetValue = inputValue.x;
+        verticalDampener.targetValue = inputValue.y;
     }
 
     private void ApplyLookRotation()
     {
+        
         if (target == null)
         {
-            throw new NullReferenceException("Target is null");
+            throw new NullReferenceException("Look target is null, assign it in inspector");
         }
-
+        
         if (ParentCharacter.LockTarget != null)
         {
-
             Vector3 lookDirection = (ParentCharacter.LockTarget.position - target.position).normalized;
             Quaternion rotation = Quaternion.LookRotation(lookDirection, Vector3.up);
-            transform.rotation = rotation;
+            target.rotation = rotation;
             return;
         }
 
-        target.RotateAround(point:target.position.normalized, axis:transform.up, angle:horizontalDampener.CurrentValue * horizontalRotationSpeed * Time.deltaTime);
-        //Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalDampener.CurrentValue * horizontalRotationSpeed * Time.deltaTime, transform.up);
-        //target.rotation = horizontalRotation;
-        verticalRotation += verticalDampener.CurrentValue * verticalRotationSpeed * Time.deltaTime;
-        verticalRotation = Mathf.Clamp(verticalRotation, rotationLimits.x, rotationLimits.y);
-
+        #warning Reset rotation while locked
+        target.RotateAround(target.position, transform.up, horizontalDampener.currentValue * horizontalRotationSpeed * 360 * Time.deltaTime);
+        verticalRotation += verticalDampener.currentValue * verticalRotationSpeed * 360 * Time.deltaTime;
+        verticalRotation = Mathf.Clamp(verticalRotation, verticalRotationLimits.x, verticalRotationLimits.y);
         Vector3 euler = target.localEulerAngles;
         euler.x = verticalRotation;
         target.localEulerAngles = euler;
@@ -59,7 +55,6 @@ public class characterLoook : MonoBehaviour, ICharacterComponent
     {
         horizontalDampener.Update();
         verticalDampener.Update();
-
         ApplyLookRotation();
     }
 }

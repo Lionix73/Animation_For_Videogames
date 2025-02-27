@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +9,8 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] private FloatDampener speedX;
     [SerializeField] private FloatDampener speedY;
     [SerializeField] private float angularSpeed;
+    [SerializeField] private Transform aimTarget;
+    [SerializeField] private float rotationThresHold;
 
     private Animator animator;
 
@@ -19,7 +19,7 @@ public class CharacterMovement : MonoBehaviour
 
     private Quaternion targetRotation;
 
-    private void solveCharacterRotation()
+    private void SolveCharacterRotation()
     {
         Vector3 floorNormal = transform.up;
         Vector3 cameraRealFoward = camera.transform.forward;
@@ -31,33 +31,46 @@ public class CharacterMovement : MonoBehaviour
 
         Quaternion lookRotation = Quaternion.LookRotation(characterFoward, upwards: floorNormal);
     }
-    public void OnMove(InputAction.CallbackContext ctx)
-    {
-        Vector2 InputValue = ctx.ReadValue<Vector2>();
-        speedX.targetValue = InputValue.x;
-        speedY.targetValue = InputValue.y;
 
-        if (InputValue.magnitude > .1f)
-        {
-            solveCharacterRotation();
-        }
+    private void ApplyCharacterRotation()
+    {
+        float motionMagnitude = Mathf.Sqrt(speedX.targetValue * speedX.targetValue + speedY.targetValue * speedY.targetValue);
+        float rotationSpeed = Mathf.SmoothStep(0, .1f, motionMagnitude);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularSpeed * rotationSpeed);
     }
 
+    private void ApplyCharacterRotationFromAim()
+    {
+        Vector3 aimFoward = Vector3.ProjectOnPlane(aimTarget.forward,transform.up).normalized;
+        Vector3 characterFoward = transform.forward;
+        float angleCos = Vector3.Dot(characterFoward, aimFoward);
+         float rotationSpeed = Mathf.SmoothStep(0f, 1f, Mathf.Acos(angleCos) * Mathf.Rad2Deg / rotationThresHold);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularSpeed * rotationSpeed);
+    }
+
+     public void OnMove(InputAction.CallbackContext ctx)
+    {
+        Vector2 inputValue = ctx.ReadValue<Vector2>();
+        speedX.targetValue = inputValue.x;
+        speedY.targetValue = inputValue.y;
+    }
+    
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        speedXHash = Animator.StringToHash(name:"SpeedX");
-        speedYHash = Animator.StringToHash(name:"SpeedY");
+        speedXHash = Animator.StringToHash("SpeedX");
+        speedYHash = Animator.StringToHash("SpeedY");
     }
 
     private void Update()
     {
         speedX.Update();
         speedY.Update();
-
         animator.SetFloat(speedXHash, speedX.currentValue);
         animator.SetFloat(speedYHash, speedY.currentValue);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, angularSpeed * Time.deltaTime);
-
+        SolveCharacterRotation();
+        ApplyCharacterRotation();
     }
+
+    public character ParentCharacter { get; set; }
 }
