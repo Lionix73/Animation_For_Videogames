@@ -33,18 +33,16 @@ public class CharacterLook_ALR : MonoBehaviour, ICharacterComp
         }
 
         if(Character.LockTarget != null){
-            target = Character.LockTarget;
 
             Vector3 lookDir = (Character.LockTarget.position - target.position).normalized;
             Quaternion rotation = Quaternion.LookRotation(lookDir, Vector3.up);
-            transform.rotation = rotation;
+            target.rotation = rotation;
             return;
         }
 
-        target.RotateAround(target.position, transform.up, horizontalDampener.CurrentValue * horizontalRotationSpeed * Time.deltaTime);
-        //Quaternion horizontalRotation = Quaternion.AngleAxis(horizontalDampener.CurrentValue * horizontalRotationSpeed * Time.deltaTime, transform.up);
-        //target.rotation *= horizontalRotation;
-        verticalRotation += verticalDampener.CurrentValue * verticalRotationSpeed * Time.deltaTime;
+
+        target.RotateAround(target.position, transform.up, horizontalDampener.CurrentValue * horizontalRotationSpeed * 360 * Time.deltaTime);
+        verticalRotation += verticalDampener.CurrentValue * verticalRotationSpeed * 360 * Time.deltaTime;
         verticalRotation = Mathf.Clamp(verticalRotation, rotationLimits.x, rotationLimits.y);
 
         Vector3 euler = target.localEulerAngles;
